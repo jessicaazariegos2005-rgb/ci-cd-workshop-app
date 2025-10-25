@@ -1,32 +1,11 @@
-
 {
-  "name": "ci-cd-workshop-app",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "test": "vitest run --reporter=dot",
     "test:watch": "vitest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write ."
-  },
-  "dependencies": {
-    "express": "^4.19.2"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.11.30",
-    "@typescript-eslint/eslint-plugin": "^8.8.0",
-    "@typescript-eslint/parser": "^8.8.0",
-    "eslint": "^9.9.0",
-    "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.2.5",
-    "supertest": "^7.0.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.3"
   }
 }
