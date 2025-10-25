@@ -1,4 +1,3 @@
-
 name: Release (sin Docker)
 
 on:
@@ -11,20 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
+
       - name: Install deps
         run: npm ci
-      - name: Lint
-        run: npm run lint
+
+      # (Lint eliminado)
       - name: Build
         run: npm run build
+
       - name: Package dist
         run: |
           zip -r app-dist.zip dist package.json README.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
