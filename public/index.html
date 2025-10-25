@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CI/CD Workshop App</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0ea5e9; /* sky-500 */
+      --bg2:#7c3aed; /* violet-600 */
+      --card:#0b1020cc;
+      --text:#e5e7eb; /* zinc-200 */
+      --muted:#a1a1aa; /* zinc-400 */
+      --accent:#22c55e; /* green-500 */
+      --accent2:#f59e0b; /* amber-500 */
+      --error:#ef4444; /* red-500 */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 20% 10%, #38bdf8 0%, transparent 60%),
+                  radial-gradient(900px 700px at 80% 20%, #a78bfa 0%, transparent 55%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      display:flex;align-items:center;justify-content:center;padding:24px;
+    }
+    .wrap{
+      width:min(920px, 100%);
+      display:grid;gap:18px;
+      grid-template-columns: 1.2fr .8fr;
+    }
+    @media (max-width:860px){ .wrap{grid-template-columns:1fr} }
+    .card{
+      background:var(--card);
+      border:1px solid #2b2f45;
+      border-radius:20px;
+      box-shadow:0 12px 32px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+      backdrop-filter: blur(8px);
+      padding:22px;
+    }
+    .title{
+      display:flex;align-items:center;gap:12px;margin:0 0 6px 0;
+      font-weight:800;font-size:28px;letter-spacing:.3px;
+    }
+    .subtitle{margin:0;color:var(--muted)}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      background:#111827; border:1px solid #374151;
+      padding:6px 10px;border-radius:999px;font-size:12px;color:#cbd5e1
+    }
+    .pill{padding:.25rem .6rem;border-radius:999px;font-weight:700;font-size:12px}
+    .ok{background:rgba(34,197,94,.18); color:#bbf7d0; border:1px solid rgba(34,197,94,.35)}
+    .warn{background:rgba(245,158,11,.18); color:#fde68a; border:1px solid rgba(245,158,11,.35)}
+    .err{background:rgba(239,68,68,.18); color:#fecaca; border:1px solid rgba(239,68,68,.35)}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+    @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+    .metric{background:#0d1226cc;border:1px solid #2b2f45;border-radius:16px;padding:16px}
+    .metric h4{margin:0 0 8px 0;font-size:13px;color:#cbd5e1;font-weight:600}
+    .metric p{margin:0;font-size:26px;font-weight:800;letter-spacing:.2px}
+    .footer{margin-top:16px;color:#cbd5e1;font-size:12px;opacity:.85}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{
+      appearance:none;border:1px solid #334155;background:#0b1020;color:#e5e7eb;
+      padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer;
+      transition:transform .05s ease, background .2s ease,border .2s ease;
+    }
+    .btn:hover{transform:translateY(-1px);background:#0f1530}
+    .btn.primary{border-color:#22c55e;background:#102414}
+    code{background:#0b1220;border:1px solid #1f2937;border-radius:8px;padding:2px 6px}
+    a{color:#bfdbfe}
+    .json{
+      margin-top:14px;white-space:pre-wrap;background:#0b1220;border:1px solid #1f2937;
+      border-radius:12px;padding:14px;font-size:13px;color:#d1d5db;max-height:200px;overflow:auto
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <div class="badge">🚀 CI/CD · Node + TypeScript · Vitest</div>
+      <h1 class="title">CI/CD Workshop App</h1>
+      <p class="subtitle">
+        Tu pipeline en GitHub Actions compila, prueba y empaqueta la app automáticamente.
+        Esta página está servida por <code>express.static("public")</code>.
+      </p>
+
+      <div class="grid">
+        <div class="metric">
+          <h4>Estado</h4>
+          <p id="status"><span class="pill warn">Cargando…</span></p>
+        </div>
+        <div class="metric">
+          <h4>Uptime</h4>
+          <p id="uptime">–</p>
+        </div>
+        <div class="metric">
+          <h4>Sample</h4>
+          <p id="sample">–</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="ping">Probar /health</button>
+        <a class="btn" href="/health" target="_blank" rel="noreferrer">Ver JSON crudo</a>
+        <a class="btn" href="https://github.com" target="_blank" rel="noreferrer">Abrir GitHub</a>
+      </div>
+
+      <div class="json" id="jsonBox" hidden></div>
+
+      <div class="footer">
+        Desarrollado por <strong>Jessica Pacheco Mazareigos</strong> ·
+        Entorno: <code>NODE_ENV=production</code> / Puerto <code>3000</code>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h3 class="title" style="font-size:22px">¿Qué incluye?</h3>
+      <ul style="margin:0 0 10px 18px;line-height:1.65">
+        <li>API en Express con rutas <code>/</code> y <code>/health</code></li>
+        <li>Tests con Vitest + Supertest</li>
+        <li>TypeScript estricto</li>
+        <li>GitHub Actions (CI) — build & test</li>
+        <li>Release (sin Docker) — empaqueta <code>dist</code></li>
+      </ul>
+      <p style="color:var(--muted);margin:0">
+        Edita esta página en <code>public/index.html</code>.  
+        El backend está en <code>src/</code>.
+      </p>
+    </aside>
+  </div>
+
+  <script>
+    const $status = document.getElementById("status");
+    const $uptime = document.getElementById("uptime");
+    const $sample = document.getElementById("sample");
+    const $jsonBox = document.getElementById("jsonBox");
+    const $ping = document.getElementById("ping");
+
+    async function loadHealth(){
+      try{
+        const res = await fetch("/health");
+        const data = await res.json();
+        $status.innerHTML = `<span class="pill ok">OK</span>`;
+        $uptime.textContent = formatSeconds(data.uptime || 0);
+        $sample.textContent = String(data.sample ?? "—");
+        $jsonBox.hidden = false;
+        $jsonBox.textContent = JSON.stringify(data, null, 2);
+      }catch(e){
+        $status.innerHTML = `<span class="pill err">ERROR</span>`;
+        $uptime.textContent = "—";
+        $sample.textContent = "—";
+        $jsonBox.hidden = false;
+        $jsonBox.textContent = String(e);
+      }
+    }
+    function formatSeconds(s){
+      const d = Math.floor(s/86400), h=Math.floor((s%86400)/3600),
+            m=Math.floor((s%3600)/60), sec=Math.floor(s%60);
+      const parts = [];
+      if(d) parts.push(d+"d");
+      if(h) parts.push(h+"h");
+      if(m) parts.push(m+"m");
+      parts.push(sec+"s");
+      return parts.join(" ");
+    }
+    $ping.addEventListener("click", loadHealth);
+    loadHealth();
+  </script>
+</body>
+</html>
